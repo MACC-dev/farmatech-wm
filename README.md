@@ -1,10 +1,11 @@
 # farmatech-wm
 
-Introducción 
+#Introducción
+---------------
 FarmaTech es un sistema de información diseñado para la gestión eficiente de farmacias, facilitando el control de inventario, ventas y generación de reportes. Su objetivo principal es mejorar la administración de los productos farmacéuticos, optimizar los procesos de venta y proporcionar análisis de datos en tiempo real. Este sistema está desarrollado utilizando FastAPI para el backend y React para el frontend, garantizando rapidez, seguridad y escalabilidad. Para la gestión de la base de datos, se emplea MySQL, permitiendo un almacenamiento estructurado y eficiente.
-
+----------------
 El sistema esta diseñado de momento para que se ejecute local en su primera fase , con la posibilidad de migración futura a una plataforma web accesible desde cualquier ubicación.
-
+-------------------
 Tecnologías Utilizadas 
 
 
