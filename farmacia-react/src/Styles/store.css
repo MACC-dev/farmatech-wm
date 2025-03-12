@@ -1,0 +1,93 @@
+h1{
+    color: #ffffff;
+    text-align: center;
+    padding-bottom: 20px;
+    
+}
+
+.store-container .area {
+    flex: 1;
+    padding: 0px;
+
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0px;
+}
+
+.store-container .registro {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+h2 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+    color: #ffffff;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.store-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.store-container label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.store-container input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.store-container button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.store-container button:hover {
+    background-color: #0056b3;
+}
+
+.store-container .table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.store-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+.store-container thead {
+    background: #007bff;
+    color: white;
+}
+
+.store-container th, .store-container td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.store-container tr:nth-child(even) {
+    background: #f2f2f2;
+}

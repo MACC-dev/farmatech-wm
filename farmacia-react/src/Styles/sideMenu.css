@@ -1,0 +1,134 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+
+.area {
+    background: #4e54c8;  
+    background: -webkit-linear-gradient(to left, #8f94fb, #4e54c8);  
+    background: linear-gradient(to left, #8f94fb, #4e54c8); 
+    height: 100vh;
+}
+
+.main-menu {
+    background: #212121;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60px; 
+    z-index: 1000;
+    transition: width 1s; 
+    border-radius: 5px;
+}
+
+.main-menu:hover {
+    width: 200px; 
+}
+
+.main-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.main-menu ul li {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.main-menu ul li a {
+    display: flex; 
+    align-items: center; 
+    color: #ffffff;
+    text-decoration: none;
+    padding: 20px 20px;
+    font-size: 16px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+.main-menu ul li a .fa {
+    width: 20px;
+    text-align: center;
+    font-size: 1.5em; 
+    margin-right: 25px; /* Espaciado entre icono y texto */
+}
+
+.main-menu ul li a:hover {
+    background-color: #575757;
+}
+
+.main-menu ul.logout {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    
+}
+
+.main-menu ul.logout li a {
+    background-color: #ff4d4d;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+.main-menu ul.logout li a:hover {
+    background-color: #ff1a1a;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .main-menu {
+        width: 60px; 
+    }
+
+    .main-menu:hover {
+        width: 200px; 
+    }
+
+    .main-menu ul li a {
+        padding: 10px 15px;
+        font-size: 14px; 
+    }
+
+    .main-menu ul li a .fa {
+        font-size: 1.2em; /* Further reduced icon size for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .main-menu {
+        width: 60px; /* Inicialmente solo muestra los íconos */
+    }
+
+    .main-menu:hover {
+        width: 100%; /* Ancho completo al pasar el mouse */
+    }
+
+    .main-menu ul {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-menu ul li {
+        width: 100%;
+    }
+
+    .main-menu ul li a {
+        padding: 10px;
+        font-size: 12px; /* Further reduced font size for smallest screens */
+    }
+
+    .main-menu ul li a .fa {
+        font-size: 1em; /* Further reduced icon size for smallest screens */
+    }
+
+    .main-menu ul.logout {
+        position: relative;
+    }
+}
