@@ -31,7 +31,7 @@ export const Login = () => {
                 <i className="input-icon uil uil-lock-alt"></i>
               </div>
             </div>
-            <div className="password-container"><a href="/home" className="link">Olvidaste tu contraseña?</a></div>
+            <div className="password-container"><a href="/password" className="link">Olvidaste tu contraseña?</a></div>
             <div className="btn-position">
               <button type="submit" className="btn">Login</button>
             </div>

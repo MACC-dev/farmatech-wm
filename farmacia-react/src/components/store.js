@@ -1,20 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SideMenu from './sideMenu';
 import '../Styles/sideMenu.css';
-import '../Styles/store.css'; // Importa el nuevo archivo CSS
+import '../Styles/store.css';
+import api from '../api'; // Importa la instancia de Axios
 
 const Store = () => {
-    const [sales, setSales] = useState([]);
-    const [inventory, setInventory] = useState([
-        { id: 1, producto: 'Paracetamol', cantidad: 1000, Precio: 100 },
-        { id: 2, producto: 'Ibuprofeno', cantidad: 800, Precio: 80 },
-        { id: 3, producto: 'Aspirina', cantidad: 600, Precio: 60 }
-    ]);
+    const [sales, setSales] = useState([]); // Historial de ventas
+    const [inventory, setInventory] = useState([]); // Inventario
     const [saleData, setSaleData] = useState({
         producto: '',
-        cantidad: '',
-        Precio: ''
+        cantidad: ''
     });
+
+    // Obtener el inventario desde el backend
+    const fetchInventory = async () => {
+        try {
+            const response = await api.get('/productos/');
+            setInventory(response.data);
+        } catch (error) {
+            console.error('Error al obtener el inventario:', error);
+        }
+    };
+
+    const fetchSales = async () => {
+        try {
+            const response = await api.get('/ventas/');
+            // Ordenar las ventas por VentaID de menor a mayor
+            const sortedSales = response.data.sort((a, b) => a.VentaID - b.VentaID);
+            setSales(sortedSales);
+        } catch (error) {
+            console.error('Error al obtener las ventas:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchInventory();
+        fetchSales();
+    }, []);
 
     const handleSaleChange = (e) => {
         const { name, value } = e.target;
@@ -24,23 +46,42 @@ const Store = () => {
         }));
     };
 
-    const handleSaleSubmit = (e) => {
+    const handleSaleSubmit = async (e) => {
         e.preventDefault();
-        const product = inventory.find(item => item.producto === saleData.producto);
-        if (product && product.cantidad >= saleData.cantidad) {
-            const newSale = {
-                ...saleData,
-                total: saleData.cantidad * saleData.Precio
+        try {
+            // Validar que el producto exista en el inventario
+            const product = inventory.find(item => item.ProductoID === parseInt(saleData.producto));
+            if (!product) {
+                alert('El producto no existe en el inventario');
+                return;
+            }
+
+            // Validar que haya suficiente cantidad en el inventario
+            if (product.Cantidad < parseInt(saleData.cantidad)) {
+                alert('Cantidad insuficiente en inventario');
+                return;
+            }
+
+            // Crear el payload para enviar al backend
+            const payload = {
+                producto_id: parseInt(saleData.producto),
+                cantidad: parseInt(saleData.cantidad)
             };
-            setSales([...sales, newSale]);
-            setInventory(inventory.map(item =>
-                item.producto === saleData.producto
-                    ? { ...item, cantidad: item.cantidad - saleData.cantidad }
-                    : item
-            ));
-            alert('Venta registrada con éxito');
-        } else {
-            alert('Cantidad insuficiente en inventario');
+
+            console.log('Datos enviados al backend:', payload);
+
+            // Realizar la solicitud al backend
+            const response = await api.post('/realizarventa/', payload);
+
+            // Actualizar el inventario y las ventas
+            fetchInventory();
+            fetchSales();
+
+            // Mostrar mensaje de éxito
+            alert(`Venta registrada con éxito: ${response.data.message}`);
+        } catch (error) {
+            console.error('Error al registrar la venta:', error);
+            alert('Error al registrar la venta');
         }
     };
 
@@ -51,38 +92,46 @@ const Store = () => {
                 <h1>Registro de Ventas</h1>
                 <form onSubmit={handleSaleSubmit}>
                     <label>
-                        Producto:
-                        <input type="text" name="producto" value={saleData.producto} onChange={handleSaleChange} required />
+                        ID Producto:
+                        <input
+                            type="number"
+                            name="producto"
+                            value={saleData.producto}
+                            onChange={handleSaleChange}
+                            required
+                        />
                     </label>
                     <label>
                         Cantidad:
-                        <input type="number" name="cantidad" value={saleData.cantidad} onChange={handleSaleChange} required />
-                    </label>
-                    <label>
-                        Precio:
-                        <input type="number" name="Precio" value={saleData.Precio} onChange={handleSaleChange} required />
+                        <input
+                            type="number"
+                            name="cantidad"
+                            value={saleData.cantidad}
+                            onChange={handleSaleChange}
+                            required
+                        />
                     </label>
                     <button type="submit">Registrar Venta</button>
                 </form>
 
-                <h2>Facturación</h2>
+                <h2>Registro de Facturación</h2>
                 <div className="table-container">
                     <table>
                         <thead>
                             <tr>
                                 <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
+                                <th>ID Venta</th>
+                                <th>Fecha</th>
                                 <th>Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {sales.map((sale, index) => (
                                 <tr key={index}>
-                                    <td>{sale.producto}</td>
-                                    <td>{sale.cantidad}</td>
-                                    <td>{sale.Precio}</td>
-                                    <td>{sale.total}</td>
+                                    <td>{sale.ProductoNombre}</td> {/* Mostrar el nombre del producto */}
+                                    <td>{sale.VentaID}</td>
+                                    <td>{sale.FechaVenta}</td>
+                                    <td>{sale.TotalVenta}</td>
                                 </tr>
                             ))}
                         </tbody>

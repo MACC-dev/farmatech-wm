@@ -283,3 +283,79 @@ h2.Edit {
   color: #212121;
   justify-content:center ;
 }
+
+.actions {
+  display: flex;
+  justify-content: center; /* Centra los elementos horizontalmente */
+  align-items: center;
+  gap: 20px; /* Espacio entre el buscador y el botón */
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+/* Estilo para el buscador */
+.search-bar {
+  width: 100%;
+  max-width: 400px; /* Ajusta el ancho máximo del buscador */
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search-bar:focus {
+  border-color: #4e54c8;
+  box-shadow: 0 0 5px rgba(78, 84, 200, 0.5);
+}
+
+/* Estilo para el botón "Agregar Producto" */
+.add-product {
+  background-color: #4e54c8;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-product:hover {
+  background-color: #8f94fb;
+}
+
+/* Responsividad */
+@media screen and (max-width: 768px) {
+  .actions {
+      flex-direction: column; /* Apila los elementos verticalmente en pantallas pequeñas */
+      align-items: center;
+      gap: 10px;
+  }
+
+  .search-bar {
+      width: 100%; /* El buscador ocupa todo el ancho disponible */
+  }
+
+  .add-product {
+      width: 100%; /* El botón también ocupa todo el ancho disponible */
+  }
+}
+
+/* Responsividad */
+@media screen and (max-width: 768px) {
+    .actions {
+        flex-direction: column; /* Apila los elementos verticalmente en pantallas pequeñas */
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-bar {
+        width: 100%; /* El buscador ocupa todo el ancho disponible */
+    }
+
+    .add-product {
+        width: 100%; /* El botón también ocupa todo el ancho disponible */
+    }
+}

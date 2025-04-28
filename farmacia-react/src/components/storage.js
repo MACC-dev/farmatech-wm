@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import SideMenu from './sideMenu';
 import '../Styles/sideMenu.css';
 import '../Styles/table.css';
+import api from '../api'; // Importa la instancia de Axios
 
 const Storage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(''); // Estado para el buscador
     const [formData, setFormData] = useState({
         id: '',
         producto: '',
@@ -13,45 +15,41 @@ const Storage = () => {
         Proveedor: '',
         FechadeVencimiento: ''
     });
-    const [data] = useState([
-        {
-            id: 1,
-            producto: 'Paracetamol',
-            cantidad: '1000',
-            Precio: '100',
-            Proveedor: '10%',
-            FechadeVencimiento: '2025-12-31'
-        },
-        {
-            id: 2,
-            producto: 'Ibuprofeno',
-            cantidad: '800',
-            Precio: '80',
-            Proveedor: '10%',
-            FechadeVencimiento: '2024-11-30'
-        },
-        {
-            id: 3,
-            producto: 'Aspirina',
-            cantidad: '600',
-            Precio: '60',
-            Proveedor: '10%',
-            FechadeVencimiento: '2023-10-15'
-            
+    const [data, setData] = useState([]);
+
+    // Función para obtener los productos desde el backend
+    const fetchProductos = async () => {
+        try {
+            const response = await api.get('/productos/');
+            setData(response.data);
+        } catch (error) {
+            console.error('Error al obtener los productos:', error);
         }
-    ]);
+    };
 
     useEffect(() => {
-        // consultar data
+        fetchProductos();
     }, []);
 
     const handleEdit = (item) => {
-        setFormData(item);
+        setFormData({
+            id: item.ProductoID,
+            producto: item.Nombre,
+            cantidad: item.Cantidad,
+            Precio: item.Precio,
+            Proveedor: item.ProveedorID,
+            FechadeVencimiento: item.FechaVencimiento
+        });
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
-        //delete data
+    const handleDelete = async (id) => {
+        try {
+            await api.delete(`/productos/${id}`);
+            setData(data.filter(item => item.ProductoID !== id)); // Actualiza la tabla localmente
+        } catch (error) {
+            console.error('Error al eliminar el producto:', error);
+        }
     };
 
     const handleChange = (e) => {
@@ -62,19 +60,74 @@ const Storage = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        //update data
+        try {
+            if (formData.id) {
+                // Si hay un ID, actualiza el producto (PUT)
+                const response = await api.put(`/productos/${formData.id}`, {
+                    ProductoID: formData.id,
+                    Nombre: formData.producto,
+                    Cantidad: parseInt(formData.cantidad),
+                    Precio: parseFloat(formData.Precio),
+                    ProveedorID: parseInt(formData.Proveedor),
+                    FechaVencimiento: formData.FechadeVencimiento
+                });
+                setData(data.map(item => (item.ProductoID === formData.id ? response.data : item)));
+            } else {
+                // Si no hay un ID, crea un nuevo producto (POST)
+                const response = await api.post('/productos/', {
+                    Nombre: formData.producto,
+                    Cantidad: parseInt(formData.cantidad),
+                    Precio: parseFloat(formData.Precio),
+                    ProveedorID: parseInt(formData.Proveedor),
+                    FechaVencimiento: formData.FechadeVencimiento
+                });
+                setData([...data, response.data]);
+            }
+            setIsModalOpen(false);
+            setFormData({
+                id: '',
+                producto: '',
+                cantidad: '',
+                Precio: '',
+                Proveedor: '',
+                FechadeVencimiento: ''
+            });
+        } catch (error) {
+            console.error('Error al guardar el producto:', error);
+        }
     };
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const filteredData = data.filter(item =>
+        item.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div>
             <div className="area">
                 <h1 className='inventario'>Inventario</h1>
+                <div className="actions">
+                    <input
+                        type="text"
+                        placeholder="Buscar producto..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className="search-bar"
+                    />
+                    <button className="add-product" onClick={() => setIsModalOpen(true)}>
+                        Agregar Producto
+                    </button>
+                </div>
                 <div className="table-container">
                     <table id="keywords" cellSpacing="0" cellPadding="0">
                         <thead>
                             <tr>
+                                <th><span>Id</span></th>
                                 <th><span>Producto</span></th>
                                 <th><span>Cantidad</span></th>
                                 <th><span>Precio</span></th>
@@ -84,16 +137,17 @@ const Storage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {data.map(item => (
-                                <tr key={item.id} className={new Date(item.FechadeVencimiento) < new Date() ? 'expired' : ''}>
-                                    <td className="lalign">{item.producto}</td>
-                                    <td>{item.cantidad}</td>
+                            {filteredData.map(item => (
+                                <tr key={item.ProductoID} className={new Date(item.FechaVencimiento) < new Date() ? 'expired' : ''}>
+                                    <td>{item.ProductoID}</td>
+                                    <td className="lalign">{item.Nombre}</td>
+                                    <td>{item.Cantidad}</td>
                                     <td>{item.Precio}</td>
-                                    <td>{item.Proveedor}</td>
-                                    <td>{item.FechadeVencimiento}</td>
+                                    <td>{item.ProveedorID}</td>
+                                    <td>{item.FechaVencimiento}</td>
                                     <td>
                                         <button className='editInv' onClick={() => handleEdit(item)}>Edit</button>
-                                        <button className='deleteInv' onClick={() => handleDelete(item.id)}>Delete</button>
+                                        <button className='deleteInv' onClick={() => handleDelete(item.ProductoID)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -107,8 +161,14 @@ const Storage = () => {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={() => setIsModalOpen(false)}>&times;</span>
-                        <h2 className='Edit'>Editar Producto</h2>
+                        <h2 className='Edit'>{formData.id ? 'Editar Producto' : 'Agregar Producto'}</h2>
                         <form onSubmit={handleSubmit}>
+                            {formData.id && (
+                                <label>
+                                    ID:
+                                    <input type="text" name="id" value={formData.id} onChange={handleChange} disabled />
+                                </label>
+                            )}
                             <label>
                                 Producto:
                                 <input type="text" name="producto" value={formData.producto} onChange={handleChange} />
