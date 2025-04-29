@@ -4,9 +4,9 @@ import Home from './components/home';
 import Dashboard from './components/dashboard';
 import Storage from './components/storage';
 import Store from './components/store';
-
 import './App.css';
 import Login from './components/login';
+import Registrarse from './components/registrarse';
 
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
         <Route path="/storage" element={<Storage />} />
         <Route path="/store" element={<Store />} />
         <Route path="/" element={<Login />} />
+        <Route path="/registrarse" element={<Registrarse />} />
       </Routes>
     </div>
   );

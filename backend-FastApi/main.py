@@ -1,24 +1,26 @@
 import os
 from dotenv import load_dotenv
 
-
-from fastapi import FastAPI, Depends, HTTPException
+import bcrypt
+from fastapi import FastAPI, Depends, HTTPException, status
 from sqlmodel import Field, Session, create_engine, SQLModel, select, join
 from sqlalchemy import func
 from typing import Annotated, Optional, List
 import datetime
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, EmailStr
+
 
 load_dotenv()
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key") 
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
 db_name = os.getenv("DB_NAME")
 
-print(f"DB_USER: {db_user}")
-print(f"DB_PASSWORD: {db_password}")
-print(f"DB_HOST: {db_host}")
-print(f"DB_NAME: {db_name}")
+
 
 url_conection = f'mysql+pymysql://{db_user}:{db_password}@{db_host}:3306/{db_name}'
 engine = create_engine(url_conection, echo=True)
@@ -293,3 +295,47 @@ def productos_mas_vendidos(session: session_dep):
         {"producto": resultado.Nombre, "cantidad_vendida": resultado.CantidadVendida}
         for resultado in resultados
     ]
+
+class UsuarioCreate(BaseModel):
+    NombreUsuario: str
+    Contrasena: str
+    NombreCompleto: str
+    Email: EmailStr
+    Rol: str
+
+@app.post("/register", response_model=Usuario)
+def register_usuario(usuario: UsuarioCreate, session: session_dep):
+    # Verificar si el nombre de usuario ya existe
+    existing_user = session.exec(
+        select(Usuario).where(Usuario.NombreUsuario == usuario.NombreUsuario)
+    ).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Nombre de usuario ya existe")
+
+    # Verificar si el email ya existe
+    existing_email = session.exec(
+        select(Usuario).where(Usuario.Email == usuario.Email)
+    ).first()
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email ya existe")
+
+    # Hashear la contraseña
+    hashed_password = bcrypt.hashpw(usuario.Contrasena.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    # Crear el nuevo usuario
+    new_user = Usuario(
+        NombreUsuario=usuario.NombreUsuario,
+        Contrasena=hashed_password,
+        NombreCompleto=usuario.NombreCompleto,
+        Email=usuario.Email,
+        FechaCreacion=datetime.datetime.utcnow(),
+        Rol=usuario.Rol
+    )
+
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    return new_user
+
+

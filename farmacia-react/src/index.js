@@ -9,6 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import Dashboard from './components/dashboard';
 import Store from './components/store';
 import Storage from './components/storage';
+import Registrarse from './components/registrarse';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -21,6 +22,8 @@ root.render(
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/store" element={<Store />} />
         <Route path="/storage" element={<Storage />} />
+        <Route path="/registrarse" element={<Registrarse />} />
+
 
       </Routes>
     </Router>
