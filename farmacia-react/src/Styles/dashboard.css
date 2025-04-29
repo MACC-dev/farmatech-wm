@@ -1,0 +1,49 @@
+.dashboard-container {
+    padding:100px;
+    background: linear-gradient(to left, #8f94fb, #4e54c8);
+    display: flex;
+    flex-direction: column; /* Organiza el título y los gráficos en columna */
+    align-items: center; /* Centra el contenido horizontalmente */
+    gap: 20px; /* Espaciado entre el título y los gráficos */
+}
+
+.charts-row {
+    display: flex;
+    justify-content: space-between; /* Coloca un gráfico a la izquierda y otro a la derecha */
+    align-items: center; /* Alinea los gráficos verticalmente */
+    width: 100%; /* Asegura que los gráficos ocupen todo el ancho disponible */
+    max-width: 1200px; /* Limita el ancho máximo de la fila */
+    gap: 40px; /* Espaciado entre los gráficos */
+}
+
+.chart-container {
+    flex: 1; /* Permite que los gráficos se ajusten proporcionalmente */
+    max-width: 100%; /* Limita el ancho máximo de cada gráfico */
+    background: #fff;
+    padding: 10px; /* Reduce el padding interno */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center; /* Centra el contenido del gráfico */
+    align-items: center;
+}
+
+h1 {
+    color: #ffffff;
+    
+    text-align: center;
+    margin-bottom: 20px; /* Espaciado entre el título y los gráficos */
+}
+body{
+    background: linear-gradient(to left, #8f94fb, #4e54c8);
+
+}
+
+/* Estilo para los títulos de los gráficos */
+.chart-container h2 {
+    text-align: center; /* Centra el texto horizontalmente */
+    color: #000; /* Cambia el color del texto a negro */
+    margin-bottom: 10px; /* Espaciado entre el título y el gráfico */
+    font-size: 18px; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita para destacar */
+}

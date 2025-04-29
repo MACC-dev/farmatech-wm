@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Field, Session, create_engine, SQLModel, select, join
+from sqlalchemy import func
 from typing import Annotated, Optional, List
 import datetime
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,7 +32,7 @@ def get_session():
 
 session_dep = Annotated[Session, Depends(get_session)]
 
-#Definindo o modelo
+#Definindo modelo
 
 class Proveedor(SQLModel, table=True):
     ProveedorID: int = Field(default=None, primary_key=True)
@@ -223,3 +224,72 @@ def realizar_venta(request: VentaRequest, session: session_dep):
             "Subtotal": detalle_venta.Subtotal
         }
     }
+
+@app.get("/ventas/graficos/")
+def ventas_por_fecha(session: session_dep):
+    # Consulta para agrupar ventas por fecha
+    query = (
+        select(
+            Venta.FechaVenta,
+            func.sum(Venta.TotalVenta).label("TotalVentas")
+        )
+        .group_by(Venta.FechaVenta)
+    )
+    resultados = session.exec(query).all()
+
+    # Formatear los datos para el frontend
+    return [
+        {"fecha": str(resultado.FechaVenta), "total": resultado.TotalVentas}
+        for resultado in resultados
+    ]
+
+@app.get("/ventas/por_producto/")
+def ventas_por_producto(session: session_dep):
+    query = (
+        select(
+            Producto.Nombre,
+            func.sum(DetalleVenta.Subtotal).label("TotalVentas")
+        )
+        .join(DetalleVenta, Producto.ProductoID == DetalleVenta.ProductoID)
+        .group_by(Producto.Nombre)
+    )
+    resultados = session.exec(query).all()
+
+    return [
+        {"producto": resultado.Nombre, "total": resultado.TotalVentas}
+        for resultado in resultados
+    ]
+
+@app.get("/ventas/diarias/")
+def ventas_diarias(session: session_dep):
+    query = (
+        select(
+            Venta.FechaVenta,
+            func.count(Venta.VentaID).label("NumeroVentas")
+        )
+        .group_by(Venta.FechaVenta)
+    )
+    resultados = session.exec(query).all()
+
+    return [
+        {"fecha": str(resultado.FechaVenta), "numero_ventas": resultado.NumeroVentas}
+        for resultado in resultados
+    ]
+
+@app.get("/productos/mas_vendidos/")
+def productos_mas_vendidos(session: session_dep):
+    query = (
+        select(
+            Producto.Nombre,
+            func.sum(DetalleVenta.CantidadVendida).label("CantidadVendida")
+        )
+        .join(DetalleVenta, Producto.ProductoID == DetalleVenta.ProductoID)
+        .group_by(Producto.Nombre)
+        .order_by(func.sum(DetalleVenta.CantidadVendida).desc())
+    )
+    resultados = session.exec(query).all()
+
+    return [
+        {"producto": resultado.Nombre, "cantidad_vendida": resultado.CantidadVendida}
+        for resultado in resultados
+    ]

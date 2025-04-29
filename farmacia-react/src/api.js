@@ -8,4 +8,10 @@ const api = axios.create({
   },
 });
 
+export const fetchVentasPorFecha = () => api.get('/ventas/graficos/');
+export const fetchVentasPorProducto = () => api.get('/ventas/por_producto/');
+export const fetchVentasDiarias = () => api.get('/ventas/diarias/');
+export const fetchProductosMasVendidos = () => api.get('/productos/mas_vendidos/');
+
+
 export default api;

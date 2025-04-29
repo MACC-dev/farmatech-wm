@@ -47,6 +47,7 @@ const Storage = () => {
         try {
             await api.delete(`/productos/${id}`);
             setData(data.filter(item => item.ProductoID !== id)); // Actualiza la tabla localmente
+            fetchProductos(); // Refresca la lista de productos
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
         }
@@ -85,6 +86,7 @@ const Storage = () => {
                 });
                 setData([...data, response.data]);
             }
+            fetchProductos(); // Refresca la lista de productos
             setIsModalOpen(false);
             setFormData({
                 id: '',
@@ -104,7 +106,7 @@ const Storage = () => {
     };
 
     const filteredData = data.filter(item =>
-        item.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        item.Nombre && item.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
