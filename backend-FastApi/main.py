@@ -9,6 +9,10 @@ from typing import Annotated, Optional, List
 import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+
 
 
 load_dotenv()
@@ -88,9 +92,6 @@ app.add_middleware(
 
 )
 
-@app.get("/")
-def index():
-    return {"message": "Hello World"}
 
 @app.on_event("startup")
 def on_startup():
@@ -339,3 +340,31 @@ def register_usuario(usuario: UsuarioCreate, session: session_dep):
     return new_user
 
 
+# Ruta a la carpeta "build" del frontend React
+build_path = Path(__file__).resolve().parent.parent / "farmacia-react" / "build"
+
+# Verificar si la carpeta "build" existe
+if not build_path.exists():
+    raise RuntimeError(f"La carpeta '{build_path}' no existe. Asegúrate de compilar el frontend con 'npm run build'.")
+
+# Montar archivos estáticos como JS, CSS, imágenes, etc.
+app.mount("/static", StaticFiles(directory=build_path / "static"), name="static")
+
+# Servir index.html para todas las rutas que no sean API
+@app.get("/{full_path:path}")
+async def serve_react_app():
+    index_file = build_path / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"error": "Frontend no compilado"}
+
+
+frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
+
+# Montar los archivos estáticos
+app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
+
+# Ruta para servir el index.html
+@app.get("/")
+def serve_react_app():
+    return FileResponse(os.path.join(frontend_path, "index.html"))
