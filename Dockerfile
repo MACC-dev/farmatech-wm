@@ -15,12 +15,14 @@ WORKDIR /app
 COPY backend-FastApi/ ./backend-FastApi
 COPY --from=frontend /app/farmacia-react/build ./backend-FastApi/static
 
-# Instalar dependencias
+# Instalar dependencias del backend
 RUN pip install --upgrade pip
 RUN pip install -r backend-FastApi/requirements.txt
 
-# Exponer puerto
-EXPOSE 8000
+# Exponer puertos para el backend (8000) y frontend (3000)
+EXPOSE 8000 3000
 
-# Comando de inicio
-CMD ["uvicorn", "backend-FastApi.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Comando de inicio:
+# 1. Iniciar el backend FastAPI con uvicorn
+# 2. Usar un servidor para servir el frontend (usaremos serve para React)
+CMD ["sh", "-c", "uvicorn backend-FastApi.main:app --host 0.0.0.0 --port 8000 & serve -s /app/backend-FastApi/static -l 3000"]
