@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 
+import csv
+from io import StringIO
 import bcrypt
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlmodel import Field, Session, create_engine, SQLModel, select, join
@@ -10,7 +12,7 @@ import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse , StreamingResponse
 from pathlib import Path
 
 
@@ -345,26 +347,70 @@ build_path = Path(__file__).resolve().parent.parent / "farmacia-react" / "build"
 
 # Verificar si la carpeta "build" existe
 if not build_path.exists():
-    raise RuntimeError(f"La carpeta '{build_path}' no existe. Asegúrate de compilar el frontend con 'npm run build'.")
+    raise RuntimeError(f"La carpeta '{build_path}' no existe.")
 
 # Montar archivos estáticos como JS, CSS, imágenes, etc.
 app.mount("/static", StaticFiles(directory=build_path / "static"), name="static")
 
 # Servir index.html para todas las rutas que no sean API
+
+
+
+frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
+
+# Archivos estáticos
+app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
+
+# Ruta Principal
+@app.get("/")
+def serve_react_app():
+    return FileResponse(os.path.join(frontend_path, "index.html"))
+
+
+@app.get("/descargarVentasCSV")
+def descargar_ventas_csv(session: session_dep):
+    # Ejecutar la query seleccionada
+    query = (
+        select(
+            Venta.VentaID,
+            Venta.FechaVenta,
+            Venta.TotalVenta,
+            Producto.Nombre.label("ProductoNombre"),
+            DetalleVenta.CantidadVendida,
+            DetalleVenta.Subtotal
+        )
+        .join(DetalleVenta, Venta.VentaID == DetalleVenta.VentaID)
+        .join(Producto, DetalleVenta.ProductoID == Producto.ProductoID)
+    )
+    ventas = session.exec(query).all()
+
+    # Crear un archivo CSV en memoria
+    output = StringIO()
+    writer = csv.writer(output)
+
+    # Escribir encabezados en el archivo CSV
+    writer.writerow(["VentaID", "FechaVenta", "TotalVenta", "ProductoNombre", "CantidadVendida", "Subtotal"])
+
+    # Escribir los datos de las ventas en el archivo CSV
+    for venta in ventas:
+        writer.writerow([
+            venta.VentaID,
+            venta.FechaVenta,
+            venta.TotalVenta,
+            venta.ProductoNombre,
+            venta.CantidadVendida,
+            venta.Subtotal
+        ])
+
+    # Mover el cursor al inicio del StringIO
+    output.seek(0)
+
+    # Retornar el archivo CSV como respuesta
+    return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=ventas.csv"})
+
 @app.get("/{full_path:path}")
 async def serve_react_app():
     index_file = build_path / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
     return {"error": "Frontend no compilado"}
-
-
-frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
-
-# Montar los archivos estáticos
-app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
-
-# Ruta para servir el index.html
-@app.get("/")
-def serve_react_app():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
