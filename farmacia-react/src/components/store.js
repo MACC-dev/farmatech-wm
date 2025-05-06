@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import SideMenu from './sideMenu';
 import '../Styles/sideMenu.css';
 import '../Styles/store.css';
-import api from '../api'; // Importa la instancia de Axios
+import api from '../api';
+
+
+
+
 
 const Store = () => {
     const [sales, setSales] = useState([]); // Historial de ventas
@@ -21,6 +25,9 @@ const Store = () => {
             console.error('Error al obtener el inventario:', error);
         }
     };
+
+
+    
 
     const fetchSales = async () => {
         try {
@@ -85,6 +92,29 @@ const Store = () => {
         }
     };
 
+    //Descargar Ventas CSV
+
+    const handleDownload = async () => {
+        try {
+            const response = await api.get('/descargarVentasCSV', { responseType: 'blob' });
+            if (response.status === 200) {
+                const blob = new Blob([response.data], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ventas.csv'; // Nombre del archivo CSV
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                console.error('Error al descargar el archivo CSV:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error al descargar el archivo CSV:', error);
+        }
+    };
+    
+
     return (
         <div className="store-container">
             <SideMenu />
@@ -111,8 +141,13 @@ const Store = () => {
                             required
                         />
                     </label>
-                    <button type="submit">Registrar Venta</button>
+                    <button type="submit">Registrar Venta</button>  
+                    <button onClick={handleDownload}> Descargar Ventas CSV</button>
                 </form>
+                    
+           
+        
+                
 
                 <h2>Registro de Facturación</h2>
                 <div className="table-container">

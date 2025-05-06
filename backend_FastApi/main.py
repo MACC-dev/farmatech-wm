@@ -341,32 +341,6 @@ def register_usuario(usuario: UsuarioCreate, session: session_dep):
 
     return new_user
 
-
-# Ruta a la carpeta "build" del frontend React
-build_path = Path(__file__).resolve().parent.parent / "farmacia-react" / "build"
-
-# Verificar si la carpeta "build" existe
-if not build_path.exists():
-    raise RuntimeError(f"La carpeta '{build_path}' no existe.")
-
-# Montar archivos estáticos como JS, CSS, imágenes, etc.
-app.mount("/static", StaticFiles(directory=build_path / "static"), name="static")
-
-# Servir index.html para todas las rutas que no sean API
-
-
-
-frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "build")
-
-# Archivos estáticos
-app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
-
-# Ruta Principal
-@app.get("/")
-def serve_react_app():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
-
-
 @app.get("/descargarVentasCSV")
 def descargar_ventas_csv(session: session_dep):
     # Ejecutar la query seleccionada
@@ -408,9 +382,24 @@ def descargar_ventas_csv(session: session_dep):
     # Retornar el archivo CSV como respuesta
     return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=ventas.csv"})
 
+
+
+
+frontend_path = Path(__file__).resolve().parent / "frontend" / "build"
+if not frontend_path.exists():
+    raise RuntimeError(f"La carpeta '{frontend_path}' no existe.")
+
+# Ruta Principal
+@app.get("/")
+def serve_react_app():
+    return FileResponse(os.path.join(frontend_path, "index.html"))
+
+
+
+
 @app.get("/{full_path:path}")
 async def serve_react_app():
-    index_file = build_path / "index.html"
+    index_file = frontend_path / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
     return {"error": "Frontend no compilado"}

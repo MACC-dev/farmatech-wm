@@ -1,11 +1,11 @@
-# Etapa 1: construir el frontend
+
 FROM node:18 AS frontend
 WORKDIR /app
 COPY farmacia-react/ ./farmacia-react
 WORKDIR /app/farmacia-react
 RUN npm install && npm run build
 
-# Etapa 2: construir el backend con FastAPI
+# construir el backend con FastAPI
 FROM python:3.11
 
 # Crear y activar entorno
@@ -13,13 +13,14 @@ WORKDIR /app
 
 # Copiar backend y requerimientos
 COPY backend-FastApi/ ./backend-FastApi
-COPY --from=frontend /app/farmacia-react/build ./backend-FastApi/static
+COPY --from=frontend /app/farmacia-react/build ./farmacia-react/build
+
 
 # Instalar dependencias
 RUN pip install --upgrade pip
 RUN pip install -r backend-FastApi/requirements.txt
 
-# Exponer puerto
+
 EXPOSE 8000
 
 # Comando de inicio
