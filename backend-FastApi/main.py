@@ -83,7 +83,7 @@ class DetalleVenta(SQLModel, table=True):
 app = FastAPI()
 
 origins = [
-    "https://farmatech-wm-zfcn.vercel.app/",
+    "https://farmatech-o8teudqng-macc-devs-projects.vercel.app/",
     # Agrega aquí otros orígenes si es necesario
 ]
 
