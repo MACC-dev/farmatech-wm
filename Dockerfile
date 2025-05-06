@@ -24,4 +24,4 @@ RUN pip install -r backend-FastApi/requirements.txt
 EXPOSE 8000
 
 # Comando de inicio
-CMD ["uvicorn", "backend-FastApi.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend_FastApi.main:app", "--host", "0.0.0.0", "--port", "8000"]
