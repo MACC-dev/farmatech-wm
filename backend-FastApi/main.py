@@ -28,7 +28,7 @@ db_name = os.getenv("DB_NAME")
 
 
 
-url_conection = f'mysql+pymysql://{db_user}:{db_password}@{db_host}:3306/{db_name}'
+url_conection = 'mysql://root:OKviUeMMPTDzdVwWgSyXtUqABepCAeMp@shinkansen.proxy.rlwy.net:38422/railway'
 engine = create_engine(url_conection, echo=True)
 
 def create_db_and_tables():
