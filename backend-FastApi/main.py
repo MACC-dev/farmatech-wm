@@ -84,7 +84,7 @@ app = FastAPI()
 
 origins = [
     "https://farmatech-o8teudqng-macc-devs-projects.vercel.app/",
-    # Agrega aquí otros orígenes si es necesario
+    "https://farmatech-wm.vercel.app/"
 ]
 
 app.add_middleware(
