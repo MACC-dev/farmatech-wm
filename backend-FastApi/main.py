@@ -11,9 +11,9 @@ from typing import Annotated, Optional, List
 import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse , StreamingResponse
-from pathlib import Path
+
+from fastapi.responses import  StreamingResponse
+
 
 
 
@@ -81,17 +81,12 @@ class DetalleVenta(SQLModel, table=True):
     Subtotal: float
 
 app = FastAPI()
-origins = [
-    "http://localhost:3000",  
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:3000"],  # Cambia esto al dominio de tu frontend en producción
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-
 )
 
 
@@ -385,21 +380,9 @@ def descargar_ventas_csv(session: session_dep):
 
 
 
-frontend_path = Path(__file__).resolve().parent / "frontend" / "build"
-if not frontend_path.exists():
-    raise RuntimeError(f"La carpeta '{frontend_path}' no existe.")
 
 # Ruta Principal
 @app.get("/")
-def serve_react_app():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
-
-
-
-
-@app.get("/{full_path:path}")
-async def serve_react_app():
-    index_file = frontend_path / "index.html"
-    if index_file.exists():
-        return FileResponse(index_file)
-    return {"error": "Frontend no compilado"}
+def root():
+    return {"message": "Bienvenido a la API de Inventario"}
+    

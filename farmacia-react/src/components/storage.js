@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker'; // Importa el DatePicker
+import 'react-datepicker/dist/react-datepicker.css'; // Importa los estilos del DatePicker
 import SideMenu from './sideMenu';
 import '../Styles/sideMenu.css';
 import '../Styles/table.css';
@@ -13,7 +15,7 @@ const Storage = () => {
         cantidad: '',
         Precio: '',
         Proveedor: '',
-        FechadeVencimiento: ''
+        FechadeVencimiento: null // Cambiado a null para manejar fechas
     });
     const [data, setData] = useState([]);
 
@@ -38,7 +40,7 @@ const Storage = () => {
             cantidad: item.Cantidad,
             Precio: item.Precio,
             Proveedor: item.ProveedorID,
-            FechadeVencimiento: item.FechaVencimiento
+            FechadeVencimiento: new Date(item.FechaVencimiento) // Convierte la fecha a un objeto Date
         });
         setIsModalOpen(true);
     };
@@ -61,6 +63,13 @@ const Storage = () => {
         }));
     };
 
+    const handleDateChange = (date) => {
+        setFormData(prevState => ({
+            ...prevState,
+            FechadeVencimiento: date
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -72,7 +81,7 @@ const Storage = () => {
                     Cantidad: parseInt(formData.cantidad),
                     Precio: parseFloat(formData.Precio),
                     ProveedorID: parseInt(formData.Proveedor),
-                    FechaVencimiento: formData.FechadeVencimiento
+                    FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0] // Convierte la fecha a formato ISO
                 });
                 setData(data.map(item => (item.ProductoID === formData.id ? response.data : item)));
             } else {
@@ -82,7 +91,7 @@ const Storage = () => {
                     Cantidad: parseInt(formData.cantidad),
                     Precio: parseFloat(formData.Precio),
                     ProveedorID: parseInt(formData.Proveedor),
-                    FechaVencimiento: formData.FechadeVencimiento
+                    FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0] // Convierte la fecha a formato ISO
                 });
                 setData([...data, response.data]);
             }
@@ -94,7 +103,7 @@ const Storage = () => {
                 cantidad: '',
                 Precio: '',
                 Proveedor: '',
-                FechadeVencimiento: ''
+                FechadeVencimiento: null
             });
         } catch (error) {
             console.error('Error al guardar el producto:', error);
@@ -121,7 +130,20 @@ const Storage = () => {
                         onChange={handleSearch}
                         className="search-bar"
                     />
-                    <button className="add-product" onClick={() => setIsModalOpen(true)}>
+                    <button
+                        className="add-product"
+                        onClick={() => {
+                            setFormData({
+                                id: '',
+                                producto: '',
+                                cantidad: '',
+                                Precio: '',
+                                Proveedor: '',
+                                FechadeVencimiento: null
+                            }); // Limpia el formulario
+                            setIsModalOpen(true); // Abre el modal
+                        }}
+                    >
                         Agregar Producto
                     </button>
                 </div>
@@ -189,7 +211,12 @@ const Storage = () => {
                             </label>
                             <label>
                                 Fecha de Vencimiento:
-                                <input type="text" name="FechadeVencimiento" value={formData.FechadeVencimiento} onChange={handleChange} />
+                                <DatePicker
+                                    selected={formData.FechadeVencimiento}
+                                    onChange={handleDateChange}
+                                    dateFormat="yyyy-MM-dd"
+                                    className="date-picker"
+                                />
                             </label>
                             <button type="submit">Guardar</button>
                         </form>
