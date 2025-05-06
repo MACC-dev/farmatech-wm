@@ -83,8 +83,9 @@ class DetalleVenta(SQLModel, table=True):
 app = FastAPI()
 
 origins = [
-    "https://farmatech-o8teudqng-macc-devs-projects.vercel.app/",
-    "https://farmatech-wm.vercel.app/"
+    "https://farmatech-o8teudqng-macc-devs-projects.vercel.app",
+    "https://farmatech-wm.vercel.app"
+    
 ]
 
 app.add_middleware(
