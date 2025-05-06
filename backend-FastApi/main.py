@@ -28,7 +28,8 @@ db_name = os.getenv("DB_NAME")
 
 
 
-url_conection = 'mysql://root:OKviUeMMPTDzdVwWgSyXtUqABepCAeMp@shinkansen.proxy.rlwy.net:38422/railway'
+url_conection = url_conection = f"mysql://{db_user}:{db_password}@{db_host}/{db_name}"
+
 engine = create_engine(url_conection, echo=True)
 
 def create_db_and_tables():
@@ -81,9 +82,15 @@ class DetalleVenta(SQLModel, table=True):
     Subtotal: float
 
 app = FastAPI()
+
+origins = [
+    "https://farmatech-wm-zfcn.vercel.app/",
+    # Agrega aquí otros orígenes si es necesario
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Cambia esto al dominio de tu frontend en producción
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
