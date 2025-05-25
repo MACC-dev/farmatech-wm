@@ -18,6 +18,7 @@ const Storage = () => {
         FechadeVencimiento: null // Cambiado a null para manejar fechas
     });
     const [data, setData] = useState([]);
+    const [proveedores, setProveedores] = useState([]); // Estado para los proveedores
 
     // Función para obtener los productos desde el backend
     const fetchProductos = async () => {
@@ -29,8 +30,19 @@ const Storage = () => {
         }
     };
 
+    // Función para obtener los proveedores desde el backend
+    const fetchProveedores = async () => {
+        try {
+            const response = await api.get('/proveedores/'); // Asegúrate de tener esta ruta en tu backend
+            setProveedores(response.data);
+        } catch (error) {
+            console.error('Error al obtener los proveedores:', error);
+        }
+    };
+
     useEffect(() => {
         fetchProductos();
+        fetchProveedores(); // Llama a la función para obtener proveedores
     }, []);
 
     const handleEdit = (item) => {
@@ -39,7 +51,7 @@ const Storage = () => {
             producto: item.Nombre,
             cantidad: item.Cantidad,
             Precio: item.Precio,
-            Proveedor: item.ProveedorID,
+            Proveedor: item.ProveedorID, // Cambiar a nombre del proveedor
             FechadeVencimiento: new Date(item.FechaVencimiento) // Convierte la fecha a un objeto Date
         });
         setIsModalOpen(true);
@@ -80,7 +92,7 @@ const Storage = () => {
                     Nombre: formData.producto,
                     Cantidad: parseInt(formData.cantidad),
                     Precio: parseFloat(formData.Precio),
-                    ProveedorID: parseInt(formData.Proveedor),
+                    ProveedorID: proveedores.find(proveedor => proveedor.Nombre === formData.Proveedor)?.ProveedorID, // Obtener ID del proveedor
                     FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0] // Convierte la fecha a formato ISO
                 });
                 setData(data.map(item => (item.ProductoID === formData.id ? response.data : item)));
@@ -90,7 +102,7 @@ const Storage = () => {
                     Nombre: formData.producto,
                     Cantidad: parseInt(formData.cantidad),
                     Precio: parseFloat(formData.Precio),
-                    ProveedorID: parseInt(formData.Proveedor),
+                    ProveedorID: proveedores.find(proveedor => proveedor.Nombre === formData.Proveedor)?.ProveedorID, // Obtener ID del proveedor
                     FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0] // Convierte la fecha a formato ISO
                 });
                 setData([...data, response.data]);
@@ -207,7 +219,14 @@ const Storage = () => {
                             </label>
                             <label>
                                 Proveedor:
-                                <input type="text" name="Proveedor" value={formData.Proveedor} onChange={handleChange} />
+                                <select name="Proveedor" value={formData.Proveedor} onChange={handleChange}>
+                                    <option value="">Selecciona un proveedor</option>
+                                    {proveedores.map(proveedor => (
+                                        <option key={proveedor.ProveedorID} value={proveedor.Nombre}>
+                                            {proveedor.Nombre}
+                                        </option>
+                                    ))}
+                                </select>
                             </label>
                             <label>
                                 Fecha de Vencimiento:
