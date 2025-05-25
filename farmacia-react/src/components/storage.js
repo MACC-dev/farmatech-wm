@@ -179,7 +179,7 @@ const Storage = () => {
                                     <td className="lalign">{item.Nombre}</td>
                                     <td>{item.Cantidad}</td>
                                     <td>{item.Precio}</td>
-                                    <td>{item.ProveedorID}</td>
+                                    <td>{item.Proveedor}</td>
                                     <td>{item.FechaVencimiento}</td>
                                     <td>
                                         <button className='editInv' onClick={() => handleEdit(item)}>Edit</button>
