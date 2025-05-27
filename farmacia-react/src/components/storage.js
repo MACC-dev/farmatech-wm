@@ -216,12 +216,16 @@ const Storage = () => {
                             </label>
                             <label>
                                 Proveedor:
-                                <select name="Proveedor" value={formData.Proveedor} onChange={handleChange}>
+                               <select
+                                    name="Proveedor"
+                                    value={formData.Proveedor}
+                                    onChange={handleChange}
+                                    className="select-proveedor">
                                     <option value="">Seleccione un proveedor</option>
                                     {proveedores.map(proveedor => (
                                         <option key={proveedor.ProveedorID} value={proveedor.ProveedorID}>
                                             {proveedor.Nombre}
-                                        </option>
+                                         </option>
                                     ))}
                                 </select>
                             </label>
