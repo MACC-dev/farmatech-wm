@@ -228,6 +228,7 @@ table tbody tr.active-row {
   width: 80%;
   max-width: 500px;
   border-radius: 10px;
+  
 }
 
 .close {
@@ -358,4 +359,9 @@ h2.Edit {
     .add-product {
         width: 100%; /* El botón también ocupa todo el ancho disponible */
     }
+}
+
+.select-proveedor,
+.select-proveedor option {
+    color: #000 !important;
 }
