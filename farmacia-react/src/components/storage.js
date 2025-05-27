@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import DatePicker from 'react-datepicker'; // Importa el DatePicker
-import 'react-datepicker/dist/react-datepicker.css'; // Importa los estilos del DatePicker
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import SideMenu from './sideMenu';
 import '../Styles/sideMenu.css';
 import '../Styles/table.css';
-import api from '../api'; // Importa la instancia de Axios
+import api from '../api';
 
 const Storage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(''); // Estado para el buscador
+    const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState({
         id: '',
         producto: '',
         cantidad: '',
         Precio: '',
         Proveedor: '',
-        FechadeVencimiento: null // Cambiado a null para manejar fechas
+        FechadeVencimiento: null
     });
     const [data, setData] = useState([]);
-    const [proveedores, setProveedores] = useState([]); // Estado para los proveedores
+    const [proveedores, setProveedores] = useState([]);
 
-    // Función para obtener los productos desde el backend
     const fetchProductos = async () => {
         try {
             const response = await api.get('/productos/');
@@ -30,10 +29,9 @@ const Storage = () => {
         }
     };
 
-    // Función para obtener los proveedores desde el backend
     const fetchProveedores = async () => {
         try {
-            const response = await api.get('/proveedores/'); // Asegúrate de tener esta ruta en tu backend
+            const response = await api.get('/proveedores/');
             setProveedores(response.data);
         } catch (error) {
             console.error('Error al obtener los proveedores:', error);
@@ -42,7 +40,7 @@ const Storage = () => {
 
     useEffect(() => {
         fetchProductos();
-        fetchProveedores(); // Llama a la función para obtener proveedores
+        fetchProveedores();
     }, []);
 
     const handleEdit = (item) => {
@@ -51,8 +49,8 @@ const Storage = () => {
             producto: item.Nombre,
             cantidad: item.Cantidad,
             Precio: item.Precio,
-            Proveedor: item.ProveedorID, // Cambiar a nombre del proveedor
-            FechadeVencimiento: new Date(item.FechaVencimiento) // Convierte la fecha a un objeto Date
+            Proveedor: item.ProveedorID,
+            FechadeVencimiento: new Date(item.FechaVencimiento)
         });
         setIsModalOpen(true);
     };
@@ -60,8 +58,8 @@ const Storage = () => {
     const handleDelete = async (id) => {
         try {
             await api.delete(`/productos/${id}`);
-            setData(data.filter(item => item.ProductoID !== id)); // Actualiza la tabla localmente
-            fetchProductos(); // Refresca la lista de productos
+            setData(data.filter(item => item.ProductoID !== id));
+            fetchProductos();
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
         }
@@ -85,29 +83,28 @@ const Storage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const payload = {
+                Nombre: formData.producto,
+                Cantidad: parseInt(formData.cantidad),
+                Precio: parseFloat(formData.Precio),
+                ProveedorID: parseInt(formData.Proveedor),
+                FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0]
+            };
+
+            let response;
+
             if (formData.id) {
-                // Si hay un ID, actualiza el producto (PUT)
-                const response = await api.put(`/productos/${formData.id}`, {
+                response = await api.put(`/productos/${formData.id}`, {
                     ProductoID: formData.id,
-                    Nombre: formData.producto,
-                    Cantidad: parseInt(formData.cantidad),
-                    Precio: parseFloat(formData.Precio),
-                    ProveedorID: proveedores.find(proveedor => proveedor.Nombre === formData.Proveedor)?.ProveedorID, // Obtener ID del proveedor
-                    FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0] // Convierte la fecha a formato ISO
+                    ...payload
                 });
                 setData(data.map(item => (item.ProductoID === formData.id ? response.data : item)));
             } else {
-                // Si no hay un ID, crea un nuevo producto (POST)
-                const response = await api.post('/productos/', {
-                    Nombre: formData.producto,
-                    Cantidad: parseInt(formData.cantidad),
-                    Precio: parseFloat(formData.Precio),
-                    ProveedorID: proveedores.find(proveedor => proveedor.Nombre === formData.Proveedor)?.ProveedorID, // Obtener ID del proveedor
-                    FechaVencimiento: formData.FechadeVencimiento.toISOString().split('T')[0] // Convierte la fecha a formato ISO
-                });
+                response = await api.post('/productos/', payload);
                 setData([...data, response.data]);
             }
-            fetchProductos(); // Refresca la lista de productos
+
+            fetchProductos();
             setIsModalOpen(false);
             setFormData({
                 id: '',
@@ -152,8 +149,8 @@ const Storage = () => {
                                 Precio: '',
                                 Proveedor: '',
                                 FechadeVencimiento: null
-                            }); // Limpia el formulario
-                            setIsModalOpen(true); // Abre el modal
+                            });
+                            setIsModalOpen(true);
                         }}
                     >
                         Agregar Producto
@@ -202,7 +199,7 @@ const Storage = () => {
                             {formData.id && (
                                 <label>
                                     ID:
-                                    <input type="text" name="id" value={formData.id} onChange={handleChange} disabled />
+                                    <input type="text" name="id" value={formData.id} disabled />
                                 </label>
                             )}
                             <label>
@@ -219,7 +216,14 @@ const Storage = () => {
                             </label>
                             <label>
                                 Proveedor:
-                                <input type='text' name="Proveedor" value={formData.Proveedor} onChange={handleChange} />
+                                <select name="Proveedor" value={formData.Proveedor} onChange={handleChange}>
+                                    <option value="">Seleccione un proveedor</option>
+                                    {proveedores.map(proveedor => (
+                                        <option key={proveedor.ProveedorID} value={proveedor.ProveedorID}>
+                                            {proveedor.Nombre}
+                                        </option>
+                                    ))}
+                                </select>
                             </label>
                             <label>
                                 Fecha de Vencimiento:
