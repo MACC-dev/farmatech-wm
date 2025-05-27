@@ -240,6 +240,12 @@ def realizar_venta(request: VentaRequest, session: session_dep):
         }
     }
 
+@app.get("/proveedores/", response_model=List[Proveedor])
+def read_proveedores(session: session_dep):
+    proveedores = session.exec(select(Proveedor)).all()
+    return proveedores
+
+
 @app.get("/ventas/graficos/")
 def ventas_por_fecha(session: session_dep):
     # Consulta para agrupar ventas por fecha
