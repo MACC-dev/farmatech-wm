@@ -124,7 +124,7 @@ def update_producto(producto_id: int, producto: Producto, session: session_dep):
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     
     # Obtener el proveedor por nombre
-    proveedor = session.exec(select(Proveedor).where(Proveedor.Nombre == producto.ProveedorID)).first()
+    proveedor = session.get(Proveedor, producto.ProveedorID)
     if not proveedor:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
     
